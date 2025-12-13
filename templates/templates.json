@@ -1,0 +1,561 @@
+[
+    {
+        "id": 1,
+        "name": "Vesting Wallet",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Linear vesting contract with cliff period using stacks-block-time.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Vesting with cliff\n(define-public (claim)\n  (let ((elapsed (- stacks-block-time start-time)))\n    (asserts! (>= elapsed cliff-duration) ERR_CLIFF)\n    (ok vested-amount)))"
+    },
+    {
+        "id": 2,
+        "name": "Escrow Contract",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Secure escrow with buyer/seller protection using restrict-assets?.",
+        "features": [
+            "restrict-assets?",
+            "stacks-block-time"
+        ],
+        "preview": ";; Escrow\n(define-public (create-escrow (amount uint) (seller principal))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (stx-transfer? amount tx-sender (as-contract tx-sender))))"
+    },
+    {
+        "id": 3,
+        "name": "Multi-Signature Wallet",
+        "category": "Security",
+        "difficulty": "Advanced",
+        "description": "M-of-N multisig wallet requiring multiple approvals.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Multi-sig (2-of-3)\n(define-public (approve-transaction (tx-id uint))\n  (map-set approvals tx-id (+ (get-approvals tx-id) u1)))"
+    },
+    {
+        "id": 4,
+        "name": "Token Swap (AMM)",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Automated market maker with constant product formula.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; AMM swap\n(define-public (swap-x-for-y (dx uint))\n  (let ((dy (/ (* dx reserve-y) (+ reserve-x dx))))\n    (ok dy)))"
+    },
+    {
+        "id": 5,
+        "name": "NFT Marketplace",
+        "category": "NFT",
+        "difficulty": "Advanced",
+        "description": "Decentralized marketplace for NFTs with royalties.",
+        "features": [
+            "restrict-assets?",
+            "contract-hash?"
+        ],
+        "preview": ";; NFT marketplace\n(define-public (buy-nft (nft-id uint))\n  (restrict-assets? tx-sender ((with-stx price))\n    (stx-transfer? price tx-sender seller)))"
+    },
+    {
+        "id": 6,
+        "name": "DAO Voting",
+        "category": "DAO",
+        "difficulty": "Advanced",
+        "description": "On-chain governance with proposal and voting system.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; DAO voting\n(define-public (vote (proposal-id uint) (vote-for bool))\n  (asserts! (<= stacks-block-time voting-deadline) ERR_EXPIRED)\n  (ok true))"
+    },
+    {
+        "id": 7,
+        "name": "Staking Contract",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Stake STX and earn rewards over time.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Staking\n(define-public (stake (amount uint))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (map-set stakes tx-sender amount)))"
+    },
+    {
+        "id": 8,
+        "name": "Timelock",
+        "category": "Security",
+        "difficulty": "Beginner",
+        "description": "Lock funds until specific timestamp.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Timelock\n(define-public (withdraw)\n  (asserts! (>= stacks-block-time unlock-time) ERR_LOCKED)\n  (ok true))"
+    },
+    {
+        "id": 9,
+        "name": "Auction Contract",
+        "category": "NFT",
+        "difficulty": "Intermediate",
+        "description": "English auction for NFTs with automatic settlement.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Auction\n(define-public (bid (amount uint))\n  (asserts! (<= stacks-block-time end-time) ERR_ENDED)\n  (ok true))"
+    },
+    {
+        "id": 10,
+        "name": "Lottery",
+        "category": "Gaming",
+        "difficulty": "Intermediate",
+        "description": "Provably fair lottery using block hashes.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Lottery\n(define-public (enter)\n  (map-set entries tx-sender stacks-block-time)\n  (ok true))"
+    },
+    {
+        "id": 11,
+        "name": "Token Faucet",
+        "category": "Utility",
+        "difficulty": "Beginner",
+        "description": "Distribute tokens with rate limiting.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Faucet\n(define-public (claim)\n  (let ((last-claim (get-last-claim tx-sender)))\n    (asserts! (> (- stacks-block-time last-claim) cooldown) ERR_TOO_SOON)))"
+    },
+    {
+        "id": 12,
+        "name": "Subscription Service",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Recurring payments for subscriptions.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Subscription\n(define-public (renew)\n  (restrict-assets? tx-sender ((with-stx monthly-fee))\n    (var-set expiry (+ stacks-block-time u2592000))))"
+    },
+    {
+        "id": 13,
+        "name": "Crowdfunding",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "All-or-nothing crowdfunding campaign.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Crowdfund\n(define-public (contribute (amount uint))\n  (asserts! (<= stacks-block-time deadline) ERR_ENDED)\n  (ok true))"
+    },
+    {
+        "id": 14,
+        "name": "NFT Collection",
+        "category": "NFT",
+        "difficulty": "Intermediate",
+        "description": "SIP-009 NFT collection with minting.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; NFT mint\n(define-public (mint)\n  (restrict-assets? tx-sender ((with-stx mint-price))\n    (nft-mint? my-nft next-id tx-sender)))"
+    },
+    {
+        "id": 15,
+        "name": "Token Vending Machine",
+        "category": "DeFi",
+        "difficulty": "Beginner",
+        "description": "Simple token sale contract.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Token sale\n(define-public (buy-tokens (stx-amount uint))\n  (restrict-assets? tx-sender ((with-stx stx-amount))\n    (ok token-amount)))"
+    },
+    {
+        "id": 16,
+        "name": "Royalty Splitter",
+        "category": "NFT",
+        "difficulty": "Intermediate",
+        "description": "Split payments among multiple recipients.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Royalty split\n(define-public (distribute (amount uint))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (distribute-to-recipients amount)))"
+    },
+    {
+        "id": 17,
+        "name": "Lending Pool",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Peer-to-peer lending with interest.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Lending\n(define-public (borrow (amount uint))\n  (let ((interest (calculate-interest amount)))\n    (ok (+ amount interest))))"
+    },
+    {
+        "id": 18,
+        "name": "Insurance Pool",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Decentralized insurance with claims.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Insurance\n(define-public (file-claim (amount uint))\n  (asserts! (is-policy-active tx-sender) ERR_NO_POLICY)\n  (ok true))"
+    },
+    {
+        "id": 19,
+        "name": "Prediction Market",
+        "category": "Gaming",
+        "difficulty": "Advanced",
+        "description": "Binary outcome prediction market.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Prediction\n(define-public (bet (outcome bool) (amount uint))\n  (asserts! (<= stacks-block-time betting-deadline) ERR_CLOSED)\n  (ok true))"
+    },
+    {
+        "id": 20,
+        "name": "Token Bridge",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Cross-chain token bridge with validators.",
+        "features": [
+            "contract-hash?",
+            "restrict-assets?"
+        ],
+        "preview": ";; Bridge\n(define-public (lock-tokens (amount uint))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (emit-bridge-event amount)))"
+    },
+    {
+        "id": 21,
+        "name": "Yield Farming",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Liquidity mining with reward distribution.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Yield farm\n(define-public (harvest)\n  (let ((rewards (calculate-rewards tx-sender)))\n    (ok rewards)))"
+    },
+    {
+        "id": 22,
+        "name": "NFT Fractionalization",
+        "category": "NFT",
+        "difficulty": "Advanced",
+        "description": "Split NFT ownership into fungible tokens.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Fractional NFT\n(define-public (fractionalize (nft-id uint) (shares uint))\n  (ft-mint? fraction-token shares tx-sender))"
+    },
+    {
+        "id": 23,
+        "name": "Decentralized Exchange",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Order book DEX with limit orders.",
+        "features": [
+            "restrict-assets?",
+            "stacks-block-time"
+        ],
+        "preview": ";; DEX order\n(define-public (place-order (amount uint) (price uint))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (create-order amount price)))"
+    },
+    {
+        "id": 24,
+        "name": "Governance Token",
+        "category": "DAO",
+        "difficulty": "Intermediate",
+        "description": "Fungible governance token with voting power.",
+        "features": [],
+        "preview": ";; Governance token\n(define-fungible-token gov-token)\n(define-public (mint (amount uint))\n  (ft-mint? gov-token amount tx-sender))"
+    },
+    {
+        "id": 25,
+        "name": "Airdrop Contract",
+        "category": "Utility",
+        "difficulty": "Beginner",
+        "description": "Merkle tree based token airdrop.",
+        "features": [],
+        "preview": ";; Airdrop\n(define-public (claim (proof (list 32 (buff 32))))\n  (asserts! (verify-proof proof tx-sender) ERR_INVALID)\n  (ok true))"
+    },
+    {
+        "id": 26,
+        "name": "NFT Rental",
+        "category": "NFT",
+        "difficulty": "Advanced",
+        "description": "Rent NFTs for temporary use.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; NFT rental\n(define-public (rent (nft-id uint) (duration uint))\n  (restrict-assets? tx-sender ((with-stx rental-fee))\n    (set-rental nft-id duration)))"
+    },
+    {
+        "id": 27,
+        "name": "Bounty System",
+        "category": "DAO",
+        "difficulty": "Intermediate",
+        "description": "Post and claim bounties for tasks.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Bounty\n(define-public (create-bounty (amount uint))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (map-set bounties next-id amount)))"
+    },
+    {
+        "id": 28,
+        "name": "Reputation System",
+        "category": "DAO",
+        "difficulty": "Intermediate",
+        "description": "On-chain reputation tracking.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Reputation\n(define-public (award-points (user principal) (points uint))\n  (map-set reputation user (+ (get-rep user) points))\n  (ok true))"
+    },
+    {
+        "id": 29,
+        "name": "Streaming Payments",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Continuous payment streams over time.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Payment stream\n(define-public (create-stream (recipient principal) (rate uint))\n  (map-set streams next-id { recipient: recipient, rate: rate, start: stacks-block-time }))"
+    },
+    {
+        "id": 30,
+        "name": "Options Contract",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Call and put options for tokens.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Options\n(define-public (exercise-option (option-id uint))\n  (asserts! (<= stacks-block-time expiry) ERR_EXPIRED)\n  (ok true))"
+    },
+    {
+        "id": 31,
+        "name": "Flash Loan",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Uncollateralized loans within single transaction.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Flash loan\n(define-public (flash-loan (amount uint))\n  (let ((initial-balance (stx-get-balance (as-contract tx-sender))))\n    (asserts! (>= (stx-get-balance (as-contract tx-sender)) (+ initial-balance fee)) ERR_NOT_REPAID)))"
+    },
+    {
+        "id": 32,
+        "name": "Token Locker",
+        "category": "Security",
+        "difficulty": "Beginner",
+        "description": "Lock tokens for team vesting.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Token lock\n(define-public (lock-tokens (amount uint) (unlock-time uint))\n  (map-set locks tx-sender { amount: amount, unlock: unlock-time }))"
+    },
+    {
+        "id": 33,
+        "name": "Whitelist Manager",
+        "category": "Utility",
+        "difficulty": "Beginner",
+        "description": "Manage whitelist for token sales.",
+        "features": [],
+        "preview": ";; Whitelist\n(define-public (add-to-whitelist (user principal))\n  (map-set whitelist user true)\n  (ok true))"
+    },
+    {
+        "id": 34,
+        "name": "NFT Staking",
+        "category": "NFT",
+        "difficulty": "Intermediate",
+        "description": "Stake NFTs to earn rewards.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; NFT staking\n(define-public (stake-nft (nft-id uint))\n  (map-set staked-nfts nft-id { owner: tx-sender, staked-at: stacks-block-time }))"
+    },
+    {
+        "id": 35,
+        "name": "Referral System",
+        "category": "Utility",
+        "difficulty": "Intermediate",
+        "description": "Track and reward referrals.",
+        "features": [],
+        "preview": ";; Referral\n(define-public (register-referral (referrer principal))\n  (map-set referrals tx-sender referrer)\n  (ok true))"
+    },
+    {
+        "id": 36,
+        "name": "Treasury Management",
+        "category": "DAO",
+        "difficulty": "Advanced",
+        "description": "DAO treasury with multi-sig control.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Treasury\n(define-public (propose-spend (amount uint) (recipient principal))\n  (map-set proposals next-id { amount: amount, recipient: recipient, votes: u0 }))"
+    },
+    {
+        "id": 37,
+        "name": "NFT Breeding",
+        "category": "Gaming",
+        "difficulty": "Advanced",
+        "description": "Combine NFTs to create new ones.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; NFT breeding\n(define-public (breed (parent1 uint) (parent2 uint))\n  (nft-mint? offspring next-id tx-sender))"
+    },
+    {
+        "id": 38,
+        "name": "Decentralized Identity",
+        "category": "Identity",
+        "difficulty": "Advanced",
+        "description": "Self-sovereign identity management.",
+        "features": [
+            "secp256r1-verify"
+        ],
+        "preview": ";; DID\n(define-public (register-identity (public-key (buff 33)))\n  (map-set identities tx-sender public-key))"
+    },
+    {
+        "id": 39,
+        "name": "Token Burn Mechanism",
+        "category": "Utility",
+        "difficulty": "Beginner",
+        "description": "Deflationary token with burn function.",
+        "features": [],
+        "preview": ";; Token burn\n(define-public (burn (amount uint))\n  (ft-burn? my-token amount tx-sender))"
+    },
+    {
+        "id": 40,
+        "name": "NFT Metadata Registry",
+        "category": "NFT",
+        "difficulty": "Intermediate",
+        "description": "Store and update NFT metadata.",
+        "features": [
+            "to-ascii?"
+        ],
+        "preview": ";; Metadata\n(define-public (set-metadata (nft-id uint) (uri (string-ascii 256)))\n  (map-set metadata nft-id uri))"
+    },
+    {
+        "id": 41,
+        "name": "Quadratic Voting",
+        "category": "DAO",
+        "difficulty": "Advanced",
+        "description": "Quadratic voting for fair governance.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Quadratic vote\n(define-public (vote (proposal-id uint) (votes uint))\n  (let ((cost (* votes votes)))\n    (ok true)))"
+    },
+    {
+        "id": 42,
+        "name": "Perpetual Futures",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Perpetual futures trading contract.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Perp futures\n(define-public (open-position (size uint) (leverage uint))\n  (restrict-assets? tx-sender ((with-stx collateral))\n    (create-position size leverage)))"
+    },
+    {
+        "id": 43,
+        "name": "Dynamic NFT",
+        "category": "NFT",
+        "difficulty": "Advanced",
+        "description": "NFTs that change based on conditions.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Dynamic NFT\n(define-read-only (get-nft-state (nft-id uint))\n  (if (> stacks-block-time threshold)\n    \"evolved\"\n    \"basic\"))"
+    },
+    {
+        "id": 44,
+        "name": "Token Vesting Schedule",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Complex vesting with multiple milestones.",
+        "features": [
+            "stacks-block-time"
+        ],
+        "preview": ";; Multi-milestone vesting\n(define-public (claim-milestone (milestone-id uint))\n  (asserts! (>= stacks-block-time (get-milestone-time milestone-id)) ERR_TOO_EARLY))"
+    },
+    {
+        "id": 45,
+        "name": "Decentralized Lottery",
+        "category": "Gaming",
+        "difficulty": "Advanced",
+        "description": "Provably fair lottery with VRF.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; VRF lottery\n(define-public (draw-winner)\n  (let ((random (mod (unwrap-panic (get-block-info? id-header-hash block-height)) total-tickets)))\n    (ok random)))"
+    },
+    {
+        "id": 46,
+        "name": "Social Token",
+        "category": "Social",
+        "difficulty": "Intermediate",
+        "description": "Creator tokens with bonding curves.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Bonding curve\n(define-public (buy-tokens (stx-amount uint))\n  (let ((tokens (calculate-tokens-from-curve stx-amount)))\n    (ok tokens)))"
+    },
+    {
+        "id": 47,
+        "name": "NFT Bundling",
+        "category": "NFT",
+        "difficulty": "Intermediate",
+        "description": "Bundle multiple NFTs into one.",
+        "features": [],
+        "preview": ";; NFT bundle\n(define-public (create-bundle (nft-ids (list 10 uint)))\n  (nft-mint? bundle-nft next-id tx-sender))"
+    },
+    {
+        "id": 48,
+        "name": "Decentralized Payroll",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Automated payroll distribution.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Payroll\n(define-public (process-payroll)\n  (asserts! (>= stacks-block-time next-payroll-date) ERR_TOO_EARLY)\n  (distribute-salaries))"
+    },
+    {
+        "id": 49,
+        "name": "Token Swap Router",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Multi-hop token swaps across pools.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Swap router\n(define-public (swap-via-route (path (list 5 principal)) (amount uint))\n  (fold execute-swap path amount))"
+    },
+    {
+        "id": 50,
+        "name": "NFT Launchpad",
+        "category": "NFT",
+        "difficulty": "Advanced",
+        "description": "Fair launch platform for NFT collections.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; NFT launch\n(define-public (participate-in-launch)\n  (asserts! (and (>= stacks-block-time launch-start) (<= stacks-block-time launch-end)) ERR_NOT_ACTIVE)\n  (ok true))"
+    }
+]

@@ -1,0 +1,65 @@
+[
+    {
+        "id": 1,
+        "name": "Vesting Wallet",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Linear vesting contract with cliff period using stacks-block-time for time-based logic.",
+        "features": [
+            "stacks-block-time",
+            "restrict-assets?"
+        ],
+        "preview": ";; Vesting wallet with cliff\n(define-constant cliff-duration u2592000) ;; 30 days\n(define-constant vesting-duration u7776000) ;; 90 days\n\n(define-public (claim)\n  (let ((elapsed (- stacks-block-time start-time)))\n    (asserts! (>= elapsed cliff-duration) ERR_CLIFF_NOT_REACHED)\n    ;; Calculate vested amount...\n  ))",
+        "code": ";; Vesting Wallet Contract\n;; Allows gradual release of tokens over time with cliff period\n\n(define-constant ERR_NOT_AUTHORIZED (err u100))\n(define-constant ERR_CLIFF_NOT_REACHED (err u101))\n(define-constant ERR_ALREADY_CLAIMED (err u102))\n(define-constant ERR_NO_VESTED_AMOUNT (err u103))\n\n(define-constant cliff-duration u2592000) ;; 30 days in seconds\n(define-constant vesting-duration u7776000) ;; 90 days in seconds\n\n(define-data-var beneficiary principal tx-sender)\n(define-data-var start-time uint stacks-block-time)\n(define-data-var total-amount uint u0)\n(define-data-var claimed-amount uint u0)\n\n(define-public (initialize (amount uint) (recipient principal))\n  (begin\n    (asserts! (is-eq tx-sender (var-get beneficiary)) ERR_NOT_AUTHORIZED)\n    (var-set total-amount amount)\n    (var-set beneficiary recipient)\n    (var-set start-time stacks-block-time)\n    (ok true)\n  ))\n\n(define-public (claim)\n  (let (\n    (elapsed (- stacks-block-time (var-get start-time)))\n    (vested (calculate-vested-amount elapsed))\n    (claimable (- vested (var-get claimed-amount)))\n  )\n    (asserts! (is-eq tx-sender (var-get beneficiary)) ERR_NOT_AUTHORIZED)\n    (asserts! (>= elapsed cliff-duration) ERR_CLIFF_NOT_REACHED)\n    (asserts! (> claimable u0) ERR_NO_VESTED_AMOUNT)\n    (var-set claimed-amount vested)\n    (try! (stx-transfer? claimable (as-contract tx-sender) tx-sender))\n    (ok claimable)\n  ))\n\n(define-read-only (calculate-vested-amount (elapsed uint))\n  (if (>= elapsed vesting-duration)\n    (var-get total-amount)\n    (/ (* (var-get total-amount) elapsed) vesting-duration)\n  ))\n\n(define-read-only (get-claimable)\n  (let (\n    (elapsed (- stacks-block-time (var-get start-time)))\n    (vested (calculate-vested-amount elapsed))\n  )\n    (- vested (var-get claimed-amount))\n  ))"
+    },
+    {
+        "id": 2,
+        "name": "Escrow Contract",
+        "category": "DeFi",
+        "difficulty": "Intermediate",
+        "description": "Secure escrow with buyer/seller protection using restrict-assets? for payment validation.",
+        "features": [
+            "restrict-assets?",
+            "stacks-block-time"
+        ],
+        "preview": ";; Escrow with dispute resolution\n(define-public (create-escrow (amount uint) (seller principal))\n  (restrict-assets? tx-sender ((with-stx amount))\n    (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))\n    (ok escrow-id)\n  ))",
+        "code": ";; Escrow Contract\n;; Secure peer-to-peer transactions with dispute resolution\n\n(define-constant ERR_NOT_AUTHORIZED (err u100))\n(define-constant ERR_INVALID_STATE (err u101))\n(define-constant ERR_TIMEOUT_NOT_REACHED (err u102))\n\n(define-constant timeout-period u604800) ;; 7 days\n\n(define-map escrows\n  uint\n  {\n    buyer: principal,\n    seller: principal,\n    amount: uint,\n    created-at: uint,\n    state: (string-ascii 20)\n  }\n)\n\n(define-data-var next-escrow-id uint u1)\n\n(define-public (create-escrow (amount uint) (seller principal))\n  (let ((escrow-id (var-get next-escrow-id)))\n    (restrict-assets? tx-sender ((with-stx amount))\n      (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))\n      (map-set escrows escrow-id {\n        buyer: tx-sender,\n        seller: seller,\n        amount: amount,\n        created-at: stacks-block-time,\n        state: \"pending\"\n      })\n      (var-set next-escrow-id (+ escrow-id u1))\n      escrow-id\n    )\n  ))\n\n(define-public (release (escrow-id uint))\n  (let ((escrow (unwrap! (map-get? escrows escrow-id) ERR_INVALID_STATE)))\n    (asserts! (is-eq tx-sender (get buyer escrow)) ERR_NOT_AUTHORIZED)\n    (asserts! (is-eq (get state escrow) \"pending\") ERR_INVALID_STATE)\n    (map-set escrows escrow-id (merge escrow { state: \"completed\" }))\n    (as-contract (stx-transfer? (get amount escrow) tx-sender (get seller escrow)))\n  ))\n\n(define-public (refund (escrow-id uint))\n  (let ((escrow (unwrap! (map-get? escrows escrow-id) ERR_INVALID_STATE)))\n    (asserts! (is-eq tx-sender (get seller escrow)) ERR_NOT_AUTHORIZED)\n    (asserts! (is-eq (get state escrow) \"pending\") ERR_INVALID_STATE)\n    (map-set escrows escrow-id (merge escrow { state: \"refunded\" }))\n    (as-contract (stx-transfer? (get amount escrow) tx-sender (get buyer escrow)))\n  ))"
+    },
+    {
+        "id": 3,
+        "name": "Multi-Signature Wallet",
+        "category": "Security",
+        "difficulty": "Advanced",
+        "description": "M-of-N multisig wallet requiring multiple approvals for transactions.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Multi-sig wallet (2-of-3)\n(define-constant required-sigs u2)\n\n(define-public (propose-transaction (amount uint) (recipient principal))\n  (let ((tx-id (var-get next-tx-id)))\n    (map-set transactions tx-id { amount: amount, recipient: recipient, approvals: u0 })\n    (ok tx-id)\n  ))",
+        "code": ";; Multi-Signature Wallet\n;; Requires M-of-N signatures to execute transactions\n\n(define-constant ERR_NOT_OWNER (err u100))\n(define-constant ERR_ALREADY_APPROVED (err u101))\n(define-constant ERR_INSUFFICIENT_APPROVALS (err u102))\n(define-constant ERR_TX_NOT_FOUND (err u103))\n\n(define-constant required-sigs u2)\n\n(define-map owners principal bool)\n(define-map transactions\n  uint\n  {\n    amount: uint,\n    recipient: principal,\n    approvals: uint,\n    executed: bool\n  }\n)\n(define-map approvals { tx-id: uint, owner: principal } bool)\n\n(define-data-var next-tx-id uint u1)\n\n;; Initialize owners\n(map-set owners tx-sender true)\n\n(define-public (add-owner (new-owner principal))\n  (begin\n    (asserts! (default-to false (map-get? owners tx-sender)) ERR_NOT_OWNER)\n    (ok (map-set owners new-owner true))\n  ))\n\n(define-public (propose-transaction (amount uint) (recipient principal))\n  (let ((tx-id (var-get next-tx-id)))\n    (asserts! (default-to false (map-get? owners tx-sender)) ERR_NOT_OWNER)\n    (map-set transactions tx-id {\n      amount: amount,\n      recipient: recipient,\n      approvals: u0,\n      executed: false\n    })\n    (var-set next-tx-id (+ tx-id u1))\n    (ok tx-id)\n  ))\n\n(define-public (approve-transaction (tx-id uint))\n  (let (\n    (tx (unwrap! (map-get? transactions tx-id) ERR_TX_NOT_FOUND))\n    (already-approved (default-to false (map-get? approvals { tx-id: tx-id, owner: tx-sender })))\n  )\n    (asserts! (default-to false (map-get? owners tx-sender)) ERR_NOT_OWNER)\n    (asserts! (not already-approved) ERR_ALREADY_APPROVED)\n    (map-set approvals { tx-id: tx-id, owner: tx-sender } true)\n    (map-set transactions tx-id (merge tx { approvals: (+ (get approvals tx) u1) }))\n    (ok true)\n  ))\n\n(define-public (execute-transaction (tx-id uint))\n  (let ((tx (unwrap! (map-get? transactions tx-id) ERR_TX_NOT_FOUND)))\n    (asserts! (>= (get approvals tx) required-sigs) ERR_INSUFFICIENT_APPROVALS)\n    (asserts! (not (get executed tx)) ERR_INVALID_STATE)\n    (map-set transactions tx-id (merge tx { executed: true }))\n    (as-contract (stx-transfer? (get amount tx) tx-sender (get recipient tx)))\n  ))"
+    },
+    {
+        "id": 4,
+        "name": "Token Swap (AMM)",
+        "category": "DeFi",
+        "difficulty": "Advanced",
+        "description": "Automated market maker for token swaps with constant product formula.",
+        "features": [
+            "restrict-assets?"
+        ],
+        "preview": ";; Simple AMM swap\n(define-public (swap-x-for-y (dx uint))\n  (let (\n    (reserve-x (var-get reserve-x))\n    (reserve-y (var-get reserve-y))\n    (dy (/ (* dx reserve-y) (+ reserve-x dx)))\n  )\n    (try! (stx-transfer? dx tx-sender (as-contract tx-sender)))\n    (ok dy)\n  ))",
+        "code": ";; Automated Market Maker (AMM)\n;; Simple constant product AMM for token swaps\n\n(define-constant ERR_INSUFFICIENT_LIQUIDITY (err u100))\n(define-constant ERR_SLIPPAGE_TOO_HIGH (err u101))\n(define-constant ERR_ZERO_AMOUNT (err u102))\n\n(define-data-var reserve-x uint u0)\n(define-data-var reserve-y uint u0)\n(define-data-var total-shares uint u0)\n\n(define-map liquidity-providers principal uint)\n\n(define-public (add-liquidity (amount-x uint) (amount-y uint))\n  (let (\n    (current-x (var-get reserve-x))\n    (current-y (var-get reserve-y))\n    (shares (if (is-eq (var-get total-shares) u0)\n      (sqrti (* amount-x amount-y))\n      (/ (* amount-x (var-get total-shares)) current-x)\n    ))\n  )\n    (try! (stx-transfer? amount-x tx-sender (as-contract tx-sender)))\n    (var-set reserve-x (+ current-x amount-x))\n    (var-set reserve-y (+ current-y amount-y))\n    (var-set total-shares (+ (var-get total-shares) shares))\n    (map-set liquidity-providers tx-sender\n      (+ (default-to u0 (map-get? liquidity-providers tx-sender)) shares))\n    (ok shares)\n  ))\n\n(define-public (swap-x-for-y (dx uint) (min-dy uint))\n  (let (\n    (reserve-x (var-get reserve-x))\n    (reserve-y (var-get reserve-y))\n    (dy (/ (* dx reserve-y) (+ reserve-x dx)))\n  )\n    (asserts! (> dx u0) ERR_ZERO_AMOUNT)\n    (asserts! (>= dy min-dy) ERR_SLIPPAGE_TOO_HIGH)\n    (try! (stx-transfer? dx tx-sender (as-contract tx-sender)))\n    (var-set reserve-x (+ reserve-x dx))\n    (var-set reserve-y (- reserve-y dy))\n    (ok dy)\n  ))\n\n(define-read-only (get-reserves)\n  (ok { reserve-x: (var-get reserve-x), reserve-y: (var-get reserve-y) }))"
+    },
+    {
+        "id": 5,
+        "name": "NFT Marketplace",
+        "category": "NFT",
+        "difficulty": "Advanced",
+        "description": "Decentralized marketplace for buying and selling NFTs with royalties.",
+        "features": [
+            "restrict-assets?",
+            "contract-hash?"
+        ],
+        "preview": ";; NFT marketplace listing\n(define-public (list-nft (nft-contract principal) (token-id uint) (price uint))\n  (begin\n    (map-set listings { nft: nft-contract, id: token-id } {\n      seller: tx-sender,\n      price: price\n    })\n    (ok true)\n  ))",
+        "code": ";; NFT Marketplace\n;; Buy and sell NFTs with royalty support\n\n(define-constant ERR_NOT_AUTHORIZED (err u100))\n(define-constant ERR_LISTING_NOT_FOUND (err u101))\n(define-constant ERR_INSUFFICIENT_PAYMENT (err u102))\n\n(define-constant platform-fee-percent u250) ;; 2.5%\n\n(define-map listings\n  { nft-contract: principal, token-id: uint }\n  {\n    seller: principal,\n    price: uint,\n    royalty-percent: uint,\n    royalty-recipient: principal\n  }\n)\n\n(define-public (list-nft (nft-contract principal) (token-id uint) (price uint) (royalty-percent uint) (royalty-recipient principal))\n  (begin\n    (map-set listings { nft-contract: nft-contract, token-id: token-id } {\n      seller: tx-sender,\n      price: price,\n      royalty-percent: royalty-percent,\n      royalty-recipient: royalty-recipient\n    })\n    (ok true)\n  ))\n\n(define-public (buy-nft (nft-contract principal) (token-id uint))\n  (let (\n    (listing (unwrap! (map-get? listings { nft-contract: nft-contract, token-id: token-id }) ERR_LISTING_NOT_FOUND))\n    (price (get price listing))\n    (platform-fee (/ (* price platform-fee-percent) u10000))\n    (royalty-fee (/ (* price (get royalty-percent listing)) u10000))\n    (seller-amount (- (- price platform-fee) royalty-fee))\n  )\n    (restrict-assets? tx-sender ((with-stx price))\n      (try! (stx-transfer? platform-fee tx-sender (as-contract tx-sender)))\n      (try! (stx-transfer? royalty-fee tx-sender (get royalty-recipient listing)))\n      (try! (stx-transfer? seller-amount tx-sender (get seller listing)))\n      (map-delete listings { nft-contract: nft-contract, token-id: token-id })\n      true\n    )\n  ))\n\n(define-public (cancel-listing (nft-contract principal) (token-id uint))\n  (let ((listing (unwrap! (map-get? listings { nft-contract: nft-contract, token-id: token-id }) ERR_LISTING_NOT_FOUND)))\n    (asserts! (is-eq tx-sender (get seller listing)) ERR_NOT_AUTHORIZED)\n    (ok (map-delete listings { nft-contract: nft-contract, token-id: token-id }))\n  ))"
+    }
+]
