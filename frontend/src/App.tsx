@@ -354,7 +354,7 @@ function App() {
             <p className="text-xl text-foreground/70 max-w-2xl mx-auto mb-8">
               Access production-ready smart contract templates. Mint an NFT for just 0.1 STX to unlock full code.
             </p>
-            <button onClick={handleConnect} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg">
+            <button onClick={handleConnect} className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg">
               Connect Wallet to Start <ArrowRight size={20} />
             </button>
           </div>
@@ -498,18 +498,18 @@ function App() {
                 <p className="text-xs text-foreground/60">Premium Smart Contract Templates</p>
               </div>
             </div>
-            <div className="flex items-center gap-6">
-              <div className="hidden md:flex items-center gap-1 bg-background rounded-lg p-1.5 border border-border">
+            <div className="flex items-center gap-8">
+              <div className="hidden md:flex items-center gap-2 bg-background rounded-lg p-2 border border-border">
                 <button
                   onClick={() => setNetwork('testnet')}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${network === 'testnet' ? 'bg-primary text-primary-foreground' : 'text-foreground/60 hover:text-foreground'
+                  className={`px-5 py-2 rounded-md text-sm font-medium transition-colors ${network === 'testnet' ? 'bg-primary text-white' : 'text-foreground/60 hover:text-foreground'
                     }`}
                 >
                   Testnet
                 </button>
                 <button
                   onClick={() => setNetwork('mainnet')}
-                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${network === 'mainnet' ? 'bg-primary text-primary-foreground' : 'text-foreground/60 hover:text-foreground'
+                  className={`px-5 py-2 rounded-md text-sm font-medium transition-colors ${network === 'mainnet' ? 'bg-primary text-white' : 'text-foreground/60 hover:text-foreground'
                     }`}
                 >
                   Mainnet
@@ -550,11 +550,11 @@ function App() {
 
         {/* Category Filters */}
         <div className="mb-10">
-          <div className="flex gap-3 overflow-x-auto pb-3">
+          <div className="flex gap-4 overflow-x-auto pb-3">
 
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-5 py-2.5 rounded-lg whitespace-nowrap transition-colors font-medium ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
+              className={`px-6 py-3 rounded-lg whitespace-nowrap transition-colors font-medium ${!selectedCategory ? 'bg-primary text-white' : 'bg-card border border-border hover:border-primary text-foreground'
                 }`}
             >
               All
@@ -562,7 +562,7 @@ function App() {
             {ownedTemplates.size > 0 && (
               <button
                 onClick={() => setSelectedCategory('Owned')}
-                className={`px-5 py-2.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 font-medium ${selectedCategory === 'Owned' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
+                className={`px-6 py-3 rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 font-medium ${selectedCategory === 'Owned' ? 'bg-primary text-white' : 'bg-card border border-border hover:border-primary text-foreground'
                   }`}
               >
                 Owned
@@ -575,7 +575,7 @@ function App() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-5 py-2.5 rounded-lg whitespace-nowrap transition-colors font-medium ${selectedCategory === cat ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
+                className={`px-6 py-3 rounded-lg whitespace-nowrap transition-colors font-medium ${selectedCategory === cat ? 'bg-primary text-white' : 'bg-card border border-border hover:border-primary text-foreground'
                   }`}
               >
                 {cat}
