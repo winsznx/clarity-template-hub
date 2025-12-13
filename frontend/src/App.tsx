@@ -240,6 +240,20 @@ function App() {
   const handleMint = async (templateId: number) => {
     if (!userAddress) return
 
+    // Validate address matches network
+    const isMainnetAddress = userAddress.startsWith('SP')
+    const isTestnetAddress = userAddress.startsWith('ST')
+
+    if (network === 'mainnet' && !isMainnetAddress) {
+      alert('Network mismatch! You are on Mainnet but connected with a Testnet wallet (ST address). Please disconnect and reconnect with a Mainnet wallet, or switch to Testnet.')
+      return
+    }
+
+    if (network === 'testnet' && !isTestnetAddress) {
+      alert('Network mismatch! You are on Testnet but connected with a Mainnet wallet (SP address). Please disconnect and reconnect with a Testnet wallet, or switch to Mainnet.')
+      return
+    }
+
     const contract = CONTRACTS[network]
     if (!contract.address) {
       console.error('No contract address configured for', network)
@@ -247,6 +261,7 @@ function App() {
     }
 
     setMintingId(templateId)
+
     try {
       // Build post-condition to show STX transfer in wallet
       // This tells the wallet the user will send exactly MINT_PRICE STX
