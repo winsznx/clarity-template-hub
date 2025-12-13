@@ -1,0 +1,18 @@
+---
+id: 0
+name: V2 Contract Deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: template-access-nft-v2
+            expected-sender: ST31DP8F8CF2GXSZBHHHK5J6Y061744E1TP7FRGHT
+            cost: 26990
+            path: contracts/template-access-nft-v2.clar
+            anchor-block-only: true
+            clarity-version: 4
+      epoch: "3.3"
