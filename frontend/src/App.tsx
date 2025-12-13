@@ -489,34 +489,34 @@ function App() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <img src="/logo.svg" alt="Clarity Hub" className="w-10 h-10" />
               <div>
                 <span className="text-xl font-bold">Clarity Hub</span>
                 <p className="text-xs text-foreground/60">Premium Smart Contract Templates</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center gap-2 bg-background rounded-lg p-1">
+            <div className="flex items-center gap-6">
+              <div className="hidden md:flex items-center gap-1 bg-background rounded-lg p-1.5 border border-border">
                 <button
                   onClick={() => setNetwork('testnet')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${network === 'testnet' ? 'bg-primary text-primary-foreground' : 'text-foreground/60 hover:text-foreground'
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${network === 'testnet' ? 'bg-primary text-primary-foreground' : 'text-foreground/60 hover:text-foreground'
                     }`}
                 >
                   Testnet
                 </button>
                 <button
                   onClick={() => setNetwork('mainnet')}
-                  className={`px-3 py-1 rounded text-sm font-medium transition-colors ${network === 'mainnet' ? 'bg-primary text-primary-foreground' : 'text-foreground/60 hover:text-foreground'
+                  className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${network === 'mainnet' ? 'bg-primary text-primary-foreground' : 'text-foreground/60 hover:text-foreground'
                     }`}
                 >
                   Mainnet
                 </button>
               </div>
 
-              <span className="text-sm bg-primary/10 text-primary px-3 py-1 rounded-full">
+              <span className="text-sm bg-primary/10 text-primary px-4 py-2 rounded-full font-medium">
                 {userAddress.slice(0, 6)}...{userAddress.slice(-4)}
               </span>
 
@@ -524,7 +524,7 @@ function App() {
                 Disconnect
               </button>
 
-              <button onClick={toggleTheme} className="p-2 rounded-lg border border-border hover:bg-card">
+              <button onClick={toggleTheme} className="p-2.5 rounded-lg border border-border hover:bg-card transition-colors">
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
             </div>
@@ -532,22 +532,29 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
+
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-xl">
+            <Search size={20} className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/40" />
             <input
               type="text"
               placeholder="Search templates..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:border-primary"
+              className="w-full pl-12 pr-4 py-3 bg-card border border-border rounded-lg focus:outline-none focus:border-primary"
             />
           </div>
-          <div className="flex gap-2 overflow-x-auto pb-2">
+        </div>
+
+        {/* Category Filters */}
+        <div className="mb-10">
+          <div className="flex gap-3 overflow-x-auto pb-3">
+
             <button
               onClick={() => setSelectedCategory(null)}
-              className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
+              className={`px-5 py-2.5 rounded-lg whitespace-nowrap transition-colors font-medium ${!selectedCategory ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
                 }`}
             >
               All
@@ -555,7 +562,7 @@ function App() {
             {ownedTemplates.size > 0 && (
               <button
                 onClick={() => setSelectedCategory('Owned')}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 ${selectedCategory === 'Owned' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
+                className={`px-5 py-2.5 rounded-lg whitespace-nowrap transition-colors flex items-center gap-2 font-medium ${selectedCategory === 'Owned' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
                   }`}
               >
                 Owned
@@ -568,7 +575,7 @@ function App() {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${selectedCategory === cat ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
+                className={`px-5 py-2.5 rounded-lg whitespace-nowrap transition-colors font-medium ${selectedCategory === cat ? 'bg-primary text-primary-foreground' : 'bg-card border border-border hover:border-primary'
                   }`}
               >
                 {cat}
@@ -578,7 +585,8 @@ function App() {
 
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
           {filteredTemplates.map(template => {
             const isOwned = ownedTemplates.has(template.id)
             return (
