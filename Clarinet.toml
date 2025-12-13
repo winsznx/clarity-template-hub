@@ -1,0 +1,37 @@
+[project]
+name = 'clarity-template-hub'
+description = ''
+authors = []
+telemetry = false
+cache_dir = './.cache'
+requirements = []
+[contracts.sip-009-nft-trait]
+path = 'contracts/sip-009-nft-trait.clar'
+clarity_version = 4
+epoch = 'latest'
+
+[contracts.template-access-nft]
+path = 'contracts/template-access-nft.clar'
+clarity_version = 4
+epoch = 'latest'
+
+[contracts.template-access-nft-v2]
+path = 'contracts/template-access-nft-v2.clar'
+clarity_version = 4
+epoch = 'latest'
+
+[repl.analysis]
+
+passes = ['check_checker']
+
+[repl.analysis.lints]
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
+
+[repl.remote_data]
+enabled = false
+api_url = 'https://api.hiro.so'
