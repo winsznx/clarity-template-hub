@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { config } from '../config/env.js';
+import { config } from '../../config/env.js';
 
 // Rate limiting store
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
