@@ -1,0 +1,38 @@
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "src/index.ts",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/webhooks/(.*)",
+            "dest": "src/api/webhooks/$1.ts"
+        },
+        {
+            "src": "/api/analytics/(.*)",
+            "dest": "src/api/analytics/$1.ts"
+        },
+        {
+            "src": "/api/leaderboard/(.*)",
+            "dest": "src/api/leaderboard/$1.ts"
+        },
+        {
+            "src": "/api/notifications/(.*)",
+            "dest": "src/api/notifications/$1.ts"
+        },
+        {
+            "src": "/api/activity/(.*)",
+            "dest": "src/api/activity/$1.ts"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "src/index.ts"
+        }
+    ],
+    "env": {
+        "NODE_ENV": "production"
+    }
+}
