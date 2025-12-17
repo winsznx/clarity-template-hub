@@ -14,22 +14,23 @@
     },
     "dependencies": {
         "@hirosystems/chainhooks-client": "^1.0.0",
-        "@supabase/supabase-js": "^2.47.10",
         "@stacks/transactions": "^7.3.0",
-        "express": "^4.21.2",
+        "@supabase/supabase-js": "^2.47.10",
         "cors": "^2.8.5",
+        "diff": "^7.0.0",
         "dotenv": "^16.4.7",
-        "ws": "^8.18.0",
+        "express": "^4.21.2",
         "resend": "^4.0.1",
-        "zod": "^3.25.76",
-        "diff": "^7.0.0"
+        "undici": "^7.16.0",
+        "ws": "^8.18.0",
+        "zod": "^3.25.76"
     },
     "devDependencies": {
-        "@types/express": "^5.0.0",
         "@types/cors": "^2.8.17",
-        "@types/ws": "^8.5.13",
-        "@types/node": "^22.10.2",
         "@types/diff": "^6.0.0",
+        "@types/express": "^5.0.0",
+        "@types/node": "^22.10.2",
+        "@types/ws": "^8.5.13",
         "tsx": "^4.19.2",
         "typescript": "^5.7.2",
         "vitest": "^2.1.8"
