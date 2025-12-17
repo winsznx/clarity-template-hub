@@ -63,8 +63,12 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                 // Log all operation types
                 console.log(`📋 All operations:`, tx.operations.map(op => ({ type: op.type, hasAmount: !!op.amount })));
 
-                // Find NFT mint operations
-                const mintOps = tx.operations.filter(op => op.type === 'NFTMintEvent');
+                // Find NFT mint operations - they come as CREDIT operations with NFT metadata
+                // The NFT mint is typically the last CREDIT operation with asset_class_identifier
+                const mintOps = tx.operations.filter(op =>
+                    op.type === 'CREDIT' &&
+                    op.amount?.currency?.metadata?.asset_class_identifier?.includes('template-access-nft')
+                );
                 console.log(`🎯 Found ${mintOps.length} NFT mint operations`);
 
                 for (const op of mintOps) {
