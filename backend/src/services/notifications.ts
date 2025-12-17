@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { db } from '../db/client.js';
+import { db } from '../db/railway-client.js';
 import { config } from '../config/env.js';
 import { broadcastEvent } from './websocket.js';
 

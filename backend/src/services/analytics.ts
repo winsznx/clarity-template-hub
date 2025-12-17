@@ -1,4 +1,4 @@
-import { db } from '../db/client.js';
+import { db } from '../db/railway-client.js';
 
 interface AnalyticsOverview {
     total_mints: number;

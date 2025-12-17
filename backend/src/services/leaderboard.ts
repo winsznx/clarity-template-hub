@@ -1,4 +1,4 @@
-import { db } from '../db/client.js';
+import { db } from '../db/railway-client.js';
 import { broadcastEvent } from './websocket.js';
 import { notificationService } from './notifications.js';
 
