@@ -257,8 +257,13 @@ function App() {
     const contract = CONTRACTS[network]
     if (!contract.address) {
       console.error('No contract address configured for', network)
+      alert('Contract not configured for this network. Please contact support.')
       return
     }
+
+    console.log(`Minting template ${templateId} on ${network}`)
+    console.log(`Contract: ${contract.address}.${contract.name}`)
+    console.log(`User: ${userAddress}`)
 
     setMintingId(templateId)
 
@@ -284,7 +289,11 @@ function App() {
       // Only proceed if transaction was broadcast successfully
       const txResult = result as any
       if (txResult && txResult.txid) {
-        console.log('Transaction broadcast successful:', txResult.txid)
+        console.log('✅ Transaction broadcast successful:', txResult.txid)
+        console.log(`View on explorer: https://explorer.hiro.so/txid/${txResult.txid}?chain=${network}`)
+
+        // Show success message to user
+        alert(`Transaction submitted! TxID: ${txResult.txid.slice(0, 10)}...\n\nIt will take ~10 seconds to confirm. The template will unlock automatically.`)
 
         // Wait for transaction to be mined (approximately 10 seconds on Stacks)
         // Then re-check ownership from the contract
@@ -295,9 +304,23 @@ function App() {
       } else {
         console.log('Transaction may have been cancelled:', result)
       }
-    } catch (error) {
-      console.error('Mint error:', error)
-      // Don't add to owned templates on error
+    } catch (error: any) {
+      console.error('❌ Mint error:', error)
+
+      // Provide user-friendly error messages
+      let errorMessage = 'Transaction failed. '
+
+      if (error?.message?.includes('parse node response')) {
+        errorMessage += 'Network connection issue. Please try again in a few seconds.'
+      } else if (error?.message?.includes('insufficient')) {
+        errorMessage += 'Insufficient STX balance. You need at least 0.101 STX (0.1 for mint + 0.001 for fees).'
+      } else if (error?.message?.includes('cancelled') || error?.message?.includes('rejected')) {
+        errorMessage += 'Transaction was cancelled.'
+      } else {
+        errorMessage += error?.message || 'Unknown error occurred.'
+      }
+
+      alert(errorMessage + '\n\nTip: If this keeps happening, try refreshing the page and reconnecting your wallet.')
     } finally {
       setMintingId(null)
     }
