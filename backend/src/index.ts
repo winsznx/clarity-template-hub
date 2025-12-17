@@ -4,12 +4,12 @@ import { config } from './config/env.js';
 import { websocketService } from './services/websocket.js';
 import { verifyWebhookSignature, rateLimitWebhook } from './api/webhooks/security.js';
 import { handleMintWebhook } from './api/webhooks/mint.js';
-import { handleTransferWebhook } from './api/webhooks/transfer.js';
-import { handleDeploymentWebhook } from './api/webhooks/deployment.js';
 // TODO: Re-enable after adding missing methods to railway-client
+// import { handleTransferWebhook } from './api/webhooks/transfer.js';
+// import { handleDeploymentWebhook } from './api/webhooks/deployment.js';
 // import { getAnalyticsOverview, getTemplateAnalytics, getUserAnalytics } from './api/analytics/index.js';
 // import { getUserLeaderboard, getTemplateLeaderboard, getUserRank } from './api/leaderboard/index.js';
-import { getRecentActivity, getUserActivity } from './api/activity/index.js';
+// import { getRecentActivity, getUserActivity } from './api/activity/index.js';
 // import { getNotificationPreferences, updateNotificationPreferences } from './api/notifications/index.js';
 
 const app = express();
@@ -29,8 +29,9 @@ app.get('/health', (_req, res) => {
 
 // Webhook endpoints (with security middleware)
 app.post('/api/webhooks/mint', verifyWebhookSignature, rateLimitWebhook, handleMintWebhook);
-app.post('/api/webhooks/transfer', verifyWebhookSignature, rateLimitWebhook, handleTransferWebhook);
-app.post('/api/webhooks/deployment', verifyWebhookSignature, rateLimitWebhook, handleDeploymentWebhook);
+// TODO: Re-enable after adding missing methods
+// app.post('/api/webhooks/transfer', verifyWebhookSignature, rateLimitWebhook, handleTransferWebhook);
+// app.post('/api/webhooks/deployment', verifyWebhookSignature, rateLimitWebhook, handleDeploymentWebhook);
 
 // Analytics endpoints - TODO: Re-enable
 // app.get('/api/analytics/overview', getAnalyticsOverview);
@@ -42,9 +43,9 @@ app.post('/api/webhooks/deployment', verifyWebhookSignature, rateLimitWebhook, h
 // app.get('/api/leaderboard/templates', getTemplateLeaderboard);
 // app.get('/api/leaderboard/user/:address', getUserRank);
 
-// Activity endpoints
-app.get('/api/activity', getRecentActivity);
-app.get('/api/activity/user/:address', getUserActivity);
+// Activity endpoints - TODO: Re-enable
+// app.get('/api/activity', getRecentActivity);
+// app.get('/api/activity/user/:address', getUserActivity);
 
 // Notification endpoints - TODO: Re-enable
 // app.get('/api/notifications/preferences/:address', getNotificationPreferences);
