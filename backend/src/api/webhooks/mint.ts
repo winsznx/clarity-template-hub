@@ -38,15 +38,6 @@ const chainhookPayloadSchema = z.object({
 export async function handleMintWebhook(req: Request, res: Response): Promise<void> {
     try {
         // Log the raw payload for debugging
-        console.log('🔍 Received mint webhook payload:', JSON.stringify(req.body, null, 2));
-
-        const payload = chainhookPayloadSchema.parse(req.body);
-
-        // Process each block in the apply array
-        for (const block of payload.event.apply) {
-            const blockHeight = block.block_identifier.index;
-            const timestamp = block.timestamp;
-
             // Process each transaction in the block
             for (const tx of block.transactions) {
                 if (!tx.metadata.success) {
