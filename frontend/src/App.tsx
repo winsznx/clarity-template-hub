@@ -281,12 +281,17 @@ function App() {
 
       console.log('Mint result:', result)
 
-      // Only mark as owned if transaction was successful
+      // Only proceed if transaction was broadcast successfully
       const txResult = result as any
       if (txResult && txResult.txid) {
         console.log('Transaction broadcast successful:', txResult.txid)
-        // Optimistically add after successful broadcast
-        setOwnedTemplates(prev => new Set([...prev, templateId]))
+
+        // Wait for transaction to be mined (approximately 10 seconds on Stacks)
+        // Then re-check ownership from the contract
+        setTimeout(async () => {
+          console.log('Re-checking ownership after transaction...')
+          await checkOwnershipForAddress(userAddress)
+        }, 12000) // 12 seconds to ensure transaction is mined
       } else {
         console.log('Transaction may have been cancelled:', result)
       }
