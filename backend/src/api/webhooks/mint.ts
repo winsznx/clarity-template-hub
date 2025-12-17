@@ -80,10 +80,10 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                     }
 
                     // Parse template ID from hex asset_identifier
-                    // Format: "0x010000000000000000000000000000002e" = u46
+                    // Format: "0x010000000000000000000000000000001f" where the last byte (1f) is the template ID
                     const assetIdHex = op.amount.currency.metadata.asset_identifier;
-                    const templateId = parseInt(assetIdHex, 16);
-
+                    // Extract the last 2 hex characters (1 byte) and convert to decimal
+                    const templateId = parseInt(assetIdHex.slice(-2), 16);
                     console.log(`🎨 Parsed template ID: ${templateId} from ${assetIdHex}`);
 
                     try {
