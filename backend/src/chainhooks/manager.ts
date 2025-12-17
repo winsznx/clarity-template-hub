@@ -7,14 +7,17 @@ export class ChainhookManager {
     private registeredHooks: Map<string, { uuid: string; network: 'mainnet' | 'testnet' }> = new Map();
 
     constructor() {
+        // Use Platform API base URL with API key in path
+        const platformBaseUrl = 'https://api.platform.hiro.so/v1/ext';
+
         this.mainnetClient = new ChainhooksClient({
-            baseUrl: config.chainhooks.mainnetUrl,
-            apiKey: config.chainhooks.apiKey,
+            baseUrl: `${platformBaseUrl}/${config.chainhooks.apiKey}`,
+            network: 'mainnet',
         });
 
         this.testnetClient = new ChainhooksClient({
-            baseUrl: config.chainhooks.testnetUrl,
-            apiKey: config.chainhooks.apiKey,
+            baseUrl: `${platformBaseUrl}/${config.chainhooks.apiKey}`,
+            network: 'testnet',
         });
     }
 
