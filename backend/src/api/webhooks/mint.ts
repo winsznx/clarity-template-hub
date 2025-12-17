@@ -47,9 +47,13 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
         for (const block of payload.apply) {
             const blockHeight = block.block_identifier.index;
             const timestamp = block.timestamp;
+            console.log(`📦 Block ${blockHeight}, ${block.transactions.length} transactions`);
 
             for (const tx of block.transactions) {
+                console.log(`🔍 TX ${tx.transaction_identifier.hash.substring(0, 10)}... success=${tx.metadata.success}, ops=${tx.operations.length}`);
+
                 if (!tx.metadata.success) {
+                    console.log(`⏭️  Skipping failed transaction`);
                     continue;
                 }
 
@@ -58,9 +62,13 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
 
                 // Find NFT mint operations
                 const mintOps = tx.operations.filter(op => op.type === 'NFTMintEvent');
+                console.log(`🎯 Found ${mintOps.length} NFT mint operations`);
 
                 for (const op of mintOps) {
+                    console.log(`🔎 Processing mint op:`, JSON.stringify(op, null, 2));
+
                     if (!op.amount?.currency?.metadata?.asset_identifier) {
+                        console.log(`⚠️  Missing asset_identifier, skipping`);
                         continue;
                     }
 
@@ -68,6 +76,8 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                     // Format: "0x010000000000000000000000000000002e" = u46
                     const assetIdHex = op.amount.currency.metadata.asset_identifier;
                     const templateId = parseInt(assetIdHex, 16);
+
+                    console.log(`🎨 Parsed template ID: ${templateId} from ${assetIdHex}`);
 
                     try {
                         console.log(`💾 Attempting to save mint: user=${userAddress}, template=${templateId}, tx=${txId}`);
