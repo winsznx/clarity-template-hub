@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { db } from '../../db/client.js';
+import { db } from '../../db/railway-client.js';
 import { broadcastEvent } from '../../services/websocket.js';
 import { notificationService } from '../../services/notifications.js';
 import { z } from 'zod';
