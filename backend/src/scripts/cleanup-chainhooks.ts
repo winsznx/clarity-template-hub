@@ -9,7 +9,7 @@ async function main() {
         try {
             await chainhookManager.deleteHook(hook);
         } catch (error) {
-            console.log(`⚠️  Could not delete ${hook}:`, error.message);
+            console.log(`⚠️  Could not delete ${hook}:`, (error as Error).message);
         }
     }
 
