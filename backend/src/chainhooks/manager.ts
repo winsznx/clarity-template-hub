@@ -12,12 +12,10 @@ export class ChainhookManager {
 
         this.mainnetClient = new ChainhooksClient({
             baseUrl: `${platformBaseUrl}/${config.chainhooks.apiKey}`,
-            network: 'mainnet',
         });
 
         this.testnetClient = new ChainhooksClient({
             baseUrl: `${platformBaseUrl}/${config.chainhooks.apiKey}`,
-            network: 'testnet',
         });
     }
 
