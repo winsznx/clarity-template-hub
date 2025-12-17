@@ -70,8 +70,10 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                     const templateId = parseInt(assetIdHex, 16);
 
                     try {
+                        console.log(`💾 Attempting to save mint: user=${userAddress}, template=${templateId}, tx=${txId}`);
+
                         // Save to database
-                        await db.insertMint({
+                        const mintResult = await db.insertMint({
                             tx_id: txId,
                             user_address: userAddress,
                             template_id: templateId,
@@ -79,8 +81,9 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                             timestamp,
                             network: 'mainnet',
                         });
+                        console.log(`✅ Mint saved to DB:`, mintResult);
 
-                        await db.insertActivityEvent({
+                        const activityResult = await db.insertActivityEvent({
                             event_type: 'mint',
                             user_address: userAddress,
                             template_id: templateId,
@@ -90,6 +93,7 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                             network: 'mainnet',
                             metadata: { block_height: blockHeight },
                         });
+                        console.log(`✅ Activity saved to DB:`, activityResult);
 
                         console.log(`✅ Saved mint: ${userAddress} minted template #${templateId} (tx: ${txId})`);
 
@@ -106,7 +110,12 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                         });
 
                     } catch (error) {
-                        console.error('Error saving mint event:', error);
+                        console.error('❌ Error saving mint event:', error);
+                        console.error('Error details:', {
+                            name: error instanceof Error ? error.name : 'Unknown',
+                            message: error instanceof Error ? error.message : String(error),
+                            stack: error instanceof Error ? error.stack : undefined,
+                        });
                     }
                 }
             }
