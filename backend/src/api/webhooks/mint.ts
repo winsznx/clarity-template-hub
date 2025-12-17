@@ -38,6 +38,9 @@ const mintEventSchema = z.object({
 
 export async function handleMintWebhook(req: Request, res: Response): Promise<void> {
     try {
+        // Log the raw payload for debugging
+        console.log('🔍 Received mint webhook payload:', JSON.stringify(req.body, null, 2));
+
         const event = mintEventSchema.parse(req.body);
 
         // Process each apply event
