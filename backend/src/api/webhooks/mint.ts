@@ -60,6 +60,9 @@ export async function handleMintWebhook(req: Request, res: Response): Promise<vo
                 const txId = tx.transaction_identifier.hash;
                 const userAddress = tx.metadata.sender;
 
+                // Log all operation types
+                console.log(`📋 All operations:`, tx.operations.map(op => ({ type: op.type, hasAmount: !!op.amount })));
+
                 // Find NFT mint operations
                 const mintOps = tx.operations.filter(op => op.type === 'NFTMintEvent');
                 console.log(`🎯 Found ${mintOps.length} NFT mint operations`);
