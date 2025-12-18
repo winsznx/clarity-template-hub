@@ -89,6 +89,9 @@ function App() {
       // Load templates and wait for minimum time
       await Promise.all([loadTemplates(), minLoadTime])
 
+      // Check which templates are minted (sold out) - runs for everyone
+      checkMintedTemplates()
+
       // Check on-chain ownership if user was restored
       if (restoredAddress) {
         checkOwnershipForAddress(restoredAddress)
