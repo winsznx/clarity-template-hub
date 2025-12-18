@@ -40,7 +40,7 @@ export class ChainhookManager {
                 events: [
                     {
                         type: 'nft_mint',
-                        asset_identifier: `${contractAddress}::access-template`,
+                        asset_identifier: `${contractAddress}.template-access-nft-v3::access-template`,
                     },
                 ],
             },
@@ -79,7 +79,7 @@ export class ChainhookManager {
                 events: [
                     {
                         type: 'nft_transfer',
-                        asset_identifier: `${contractAddress}::access-template`,
+                        asset_identifier: `${contractAddress}.template-access-nft-v3::access-template`,
                     },
                 ],
             },
