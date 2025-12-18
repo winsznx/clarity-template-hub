@@ -29,4 +29,11 @@ plan:
             path: contracts/template-access-nft-v2.clar
             anchor-block-only: true
             clarity-version: 4
+        - contract-publish:
+            contract-name: template-access-nft-v3
+            expected-sender: SP31DP8F8CF2GXSZBHHHK5J6Y061744E1TNFGYWYV
+            cost: 40700
+            path: contracts/template-access-nft-v3.clar
+            anchor-block-only: true
+            clarity-version: 4
       epoch: "3.3"

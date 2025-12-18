@@ -10,11 +10,11 @@ import './index.css'
 const CONTRACTS = {
   testnet: {
     address: import.meta.env.VITE_TESTNET_CONTRACT_ADDRESS || 'ST31DP8F8CF2GXSZBHHHK5J6Y061744E1TP7FRGHT',
-    name: 'template-access-nft-v2'
+    name: 'template-access-nft-v3'
   },
   mainnet: {
     address: import.meta.env.VITE_MAINNET_CONTRACT_ADDRESS || 'SP31DP8F8CF2GXSZBHHHK5J6Y061744E1TNFGYWYV',
-    name: 'template-access-nft-v2'
+    name: 'template-access-nft-v3'
   }
 }
 
@@ -177,7 +177,7 @@ function App() {
           console.warn(`Failed to check template ${templateId}:`, response.status)
           return false
         }
-        
+
         const data = await response.json()
         // Result is a boolean in Clarity Value format
         return data.result === '0x03' // true in CV hex
@@ -205,7 +205,7 @@ function App() {
           console.warn(`Failed to check if template ${templateId} is minted:`, response.status)
           return false
         }
-        
+
         const data = await response.json()
         // If result is not 'none', template is minted
         return data.result !== '0x09' // 0x09 is 'none' in CV hex
@@ -235,7 +235,7 @@ function App() {
         }
       }
       await Promise.all(promises)
-      
+
       // Small delay between batches to avoid rate limiting
       if (batch < 4) {
         await new Promise(resolve => setTimeout(resolve, 100))
@@ -247,6 +247,66 @@ function App() {
     console.log('✅ Ownership check complete')
     console.log('Owned templates:', Array.from(owned))
     console.log('Minted templates:', Array.from(minted))
+  }
+
+  // Check which templates are minted (sold out) - can run without user address
+  const checkMintedTemplates = async () => {
+    const contract = CONTRACTS[network]
+    if (!contract.address) return
+
+    const minted = new Set<number>()
+    const apiUrl = network === 'mainnet'
+      ? 'https://api.hiro.so'
+      : 'https://api.testnet.hiro.so'
+
+    // Dummy address for read-only calls
+    const dummyAddress = 'SP000000000000000000002Q6VF78'
+
+    const checkIfMinted = async (templateId: number): Promise<boolean> => {
+      try {
+        const response = await fetch(
+          `${apiUrl}/v2/contracts/call-read/${contract.address}/${contract.name}/get-template-owner`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sender: dummyAddress,
+              arguments: [Cl.serialize(Cl.uint(templateId))]
+            })
+          }
+        )
+
+        if (!response.ok) return false
+
+        const data = await response.json()
+        return data.result !== '0x09' // 0x09 is 'none'
+      } catch {
+        return false
+      }
+    }
+
+    // Check templates in batches
+    for (let batch = 0; batch < 5; batch++) {
+      const promises = []
+      for (let i = 1; i <= 10; i++) {
+        const templateId = batch * 10 + i
+        if (templateId <= 50) {
+          promises.push(
+            checkIfMinted(templateId).then(isMinted => {
+              if (isMinted) minted.add(templateId)
+            }).catch(() => { })
+          )
+        }
+      }
+      await Promise.all(promises)
+
+      if (batch < 4) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+    }
+
+    setMintedTemplates(minted)
+    console.log('✅ Minted templates check complete:', Array.from(minted))
   }
 
 
