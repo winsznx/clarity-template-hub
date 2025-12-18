@@ -173,10 +173,16 @@ function App() {
             })
           }
         )
+        if (!response.ok) {
+          console.warn(`Failed to check template ${templateId}:`, response.status)
+          return false
+        }
+        
         const data = await response.json()
         // Result is a boolean in Clarity Value format
         return data.result === '0x03' // true in CV hex
-      } catch {
+      } catch (error) {
+        console.warn(`Error checking template ${templateId}:`, error)
         return false
       }
     }
@@ -195,10 +201,16 @@ function App() {
             })
           }
         )
+        if (!response.ok) {
+          console.warn(`Failed to check if template ${templateId} is minted:`, response.status)
+          return false
+        }
+        
         const data = await response.json()
         // If result is not 'none', template is minted
         return data.result !== '0x09' // 0x09 is 'none' in CV hex
-      } catch {
+      } catch (error) {
+        console.warn(`Error checking if template ${templateId} is minted:`, error)
         return false
       }
     }
@@ -216,15 +228,23 @@ function App() {
             ]).then(([hasAccess, isMinted]) => {
               if (hasAccess) owned.add(templateId)
               if (isMinted) minted.add(templateId)
+            }).catch(error => {
+              console.warn(`Error checking template ${templateId}:`, error)
             })
           )
         }
       }
       await Promise.all(promises)
+      
+      // Small delay between batches to avoid rate limiting
+      if (batch < 4) {
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
     }
 
     setOwnedTemplates(owned)
     setMintedTemplates(minted)
+    console.log('✅ Ownership check complete')
     console.log('Owned templates:', Array.from(owned))
     console.log('Minted templates:', Array.from(minted))
   }
