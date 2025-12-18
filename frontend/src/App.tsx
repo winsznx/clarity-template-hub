@@ -55,6 +55,7 @@ function App() {
   // Minting state
   const [mintingId, setMintingId] = useState<number | null>(null)
   const [ownedTemplates, setOwnedTemplates] = useState<Set<number>>(new Set())
+  const [mintedTemplates, setMintedTemplates] = useState<Set<number>>(new Set()) // Templates already minted by anyone
   const [copied, setCopied] = useState(false)
 
   const categories = ['DeFi', 'NFT', 'DAO', 'Gaming', 'Security', 'Utility', 'Social', 'Identity']
@@ -150,6 +151,7 @@ function App() {
     if (!contract.address) return
 
     const owned = new Set<number>()
+    const minted = new Set<number>()
     const apiUrl = network === 'mainnet'
       ? 'https://api.hiro.so'
       : 'https://api.testnet.hiro.so'
@@ -179,6 +181,28 @@ function App() {
       }
     }
 
+    // Check if template is minted by anyone
+    const checkIfMinted = async (templateId: number): Promise<boolean> => {
+      try {
+        const response = await fetch(
+          `${apiUrl}/v2/contracts/call-read/${contract.address}/${contract.name}/get-template-owner`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sender: address,
+              arguments: [Cl.serialize(Cl.uint(templateId))]
+            })
+          }
+        )
+        const data = await response.json()
+        // If result is not 'none', template is minted
+        return data.result !== '0x09' // 0x09 is 'none' in CV hex
+      } catch {
+        return false
+      }
+    }
+
     // Check templates in batches of 10 to avoid overwhelming the API
     for (let batch = 0; batch < 5; batch++) {
       const promises = []
@@ -186,8 +210,12 @@ function App() {
         const templateId = batch * 10 + i
         if (templateId <= 50) {
           promises.push(
-            checkTemplate(templateId).then(hasAccess => {
+            Promise.all([
+              checkTemplate(templateId),
+              checkIfMinted(templateId)
+            ]).then(([hasAccess, isMinted]) => {
               if (hasAccess) owned.add(templateId)
+              if (isMinted) minted.add(templateId)
             })
           )
         }
@@ -196,7 +224,9 @@ function App() {
     }
 
     setOwnedTemplates(owned)
+    setMintedTemplates(minted)
     console.log('Owned templates:', Array.from(owned))
+    console.log('Minted templates:', Array.from(minted))
   }
 
 
@@ -514,13 +544,20 @@ function App() {
                 <div className="bg-background rounded-lg p-4 mb-6">
                   <p className="font-mono text-sm text-foreground/60">{selectedTemplate.preview}</p>
                 </div>
-                <button
-                  onClick={() => handleMint(selectedTemplate.id)}
-                  disabled={mintingId === selectedTemplate.id}
-                  className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
-                >
-                  {mintingId === selectedTemplate.id ? 'Minting...' : 'Mint Access NFT (0.1 STX)'}
-                </button>
+                {mintedTemplates.has(selectedTemplate.id) && !ownedTemplates.has(selectedTemplate.id) ? (
+                  <div className="text-center">
+                    <p className="text-red-400 font-semibold mb-2">🔴 Sold Out</p>
+                    <p className="text-foreground/60 text-sm">This template has already been minted by another user</p>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleMint(selectedTemplate.id)}
+                    disabled={mintingId === selectedTemplate.id}
+                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 disabled:opacity-50"
+                  >
+                    {mintingId === selectedTemplate.id ? 'Minting...' : 'Mint Access NFT (0.1 STX)'}
+                  </button>
+                )}
               </div>
             )}
           </div>
