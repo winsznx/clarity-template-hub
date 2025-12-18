@@ -269,10 +269,11 @@ function App() {
 
     try {
       // Build post-condition to show STX transfer in wallet
-      // This tells the wallet the user will send exactly MINT_PRICE STX
+      // The contract transfers MINT_PRICE from user to contract owner
+      // We use willSendLte (less than or equal) to allow the exact transfer amount
       const postConditions = [
         Pc.principal(userAddress)
-          .willSendEq(MINT_PRICE)
+          .willSendLte(MINT_PRICE)
           .ustx()
       ]
 
