@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Moon, Sun, Shield, Zap, Code2, ArrowRight, Sparkles, Lock, Users, Search, X, Copy, Check } from 'lucide-react'
+import { Moon, Sun, Shield, Zap, Code2, ArrowRight, Sparkles, Lock, Users, Search, X, Copy, Check, Wallet } from 'lucide-react'
 import { connect, disconnect, isConnected, getLocalStorage, request } from '@stacks/connect'
 import { Cl, Pc } from '@stacks/transactions'
+import { AppKitButton } from '@reown/appkit/react'
 
 import './index.css'
 
@@ -512,8 +513,17 @@ function App() {
               Access production-ready smart contract templates. Mint an NFT for just 0.1 STX to unlock full code.
             </p>
             <button onClick={handleConnect} className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90 transition-opacity shadow-lg">
-              Connect Wallet to Start <ArrowRight size={20} />
+              Connect Stacks Wallet <ArrowRight size={20} />
             </button>
+
+            {/* WalletConnect Button for Bitcoin/Multi-chain users */}
+            <div className="mt-6">
+              <p className="text-sm text-foreground/60 mb-3 flex items-center justify-center gap-2">
+                <Wallet size={16} />
+                Or connect via WalletConnect (Bitcoin, Leather, Xverse)
+              </p>
+              <AppKitButton />
+            </div>
           </div>
 
           <div className="py-16 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -551,12 +561,18 @@ function App() {
             </div>
           </div>
 
-          <div className="py-16 text-center bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl mb-16">
+          <div className="py-16 text-center bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl mb-16 px-8">
             <h2 className="text-3xl font-bold mb-4">Ready to Build?</h2>
             <p className="text-lg text-foreground/70 mb-8">Connect your wallet to browse templates.</p>
-            <button onClick={handleConnect} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90">
-              Connect Wallet <ArrowRight size={20} />
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button onClick={handleConnect} className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold text-lg hover:opacity-90">
+                Connect Stacks Wallet <ArrowRight size={20} />
+              </button>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-sm text-foreground/60">or via WalletConnect</span>
+                <AppKitButton />
+              </div>
+            </div>
           </div>
         </main>
 
